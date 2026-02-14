@@ -45,6 +45,77 @@
  *   // subtotal: 1000, deliveryFee: 0, gst: 50, discount: min(500, 150) = 150
  *   // grandTotal: 1000 + 0 + 50 - 150 = 900
  */
-export function buildZomatoOrder(cart, coupon) {
+export function buildZomatoOrder(c, coupon) {
   // Your code here
+  
+  if(!Array.isArray(c) || c.length === 0) return null
+  
+  let cart = c.filter(item=>item.qty > 0)
+  if(cart.length === 0) return null
+
+  const getAddOnTotalAmt = (addons) =>{
+    let sum = 0;
+    addons.forEach(addon =>{
+      let price = addon.split(":")[1]
+      sum += Number(price)
+      return sum
+    })
+    return sum
+  }
+
+  const getItemObj = (item) =>{
+    const name = item.name;
+    const qty = item.qty;
+    const basePrice = item.price;
+    const addonTotal = item.addons ? getAddOnTotalAmt(item.addons) : 0
+    const itemTotal = (basePrice + addonTotal) * qty
+
+    return{
+      name,
+      qty,
+      basePrice,
+      addonTotal,
+      itemTotal
+    }
+  }
+
+  const getDeleveryFee = (subtotal) => {
+    if(subtotal < 500) return 30;
+    else if (subtotal>=500 && subtotal <1000) return 15;
+    else if(subtotal >= 1000) return 0
+  }
+
+  const getDiscount = (coupon, subtotal, deliveryFee) =>{
+    if(coupon === "FIRST50" || coupon === "first50") return Math.min(subtotal/2, 150);
+    else if(coupon === "FLAT100" || coupon === "flat100") return 100;
+    else if (coupon === "FREESHIP" || coupon === "freeship") return deliveryFee
+    else return 0
+  }
+
+  const items = cart.map(item=>getItemObj(item))
+  const subtotal = items.reduce((sum, acc)=> sum + acc.itemTotal, 0)
+  const gst = parseFloat((subtotal * (5/100)).toFixed(2))
+  const originalDeliveryFee = getDeleveryFee(subtotal);
+  const discount = getDiscount(coupon, subtotal, originalDeliveryFee);
+  const deliveryFee =
+    coupon && coupon.toLowerCase() === "freeship"
+      ? 0
+      : originalDeliveryFee;  
+    const grandTotal = (subtotal + deliveryFee + gst - discount) > 0 
+    ? parseFloat((subtotal + deliveryFee + gst - discount).toFixed(2)) 
+    : 0
+
+  return {
+    items,
+    subtotal,
+    deliveryFee,
+    gst,
+    discount,
+    grandTotal
+  }
 }
+
+
+console.log(buildZomatoOrder(
+  [{ name: "Biryani", price: 300, qty: 1, addons: ["Raita:30"] }], "FREESHIP"
+))

@@ -63,4 +63,116 @@
  */
 export function validateForm(formData) {
   // Your code here
+  if(typeof formData !== "object") return null
+
+  let errors = {}
+  let isValid = false
+  const {name, email, phone, age, pincode, state, agreeTerms} = formData
+
+  const validateName = (name) =>{
+    let isValid = false
+    const error = "Name must be 2-50 characters"
+    let trimmedName = name.trim()
+    if(trimmedName.length >= 2 && trimmedName.length <=50){
+      isValid = true
+    }
+    if(!isValid){
+      errors["name"] = error
+    }
+  }
+
+  const validateEmail = (email) =>{
+    let isValid = false
+    const error = "Invalid email format"
+
+    if(typeof email === "string"){
+      if(email.includes("@") && email.includes(".")){
+        if(email.indexOf("@")){
+          if(email.split("").filter(char => char === "@").length === 1){
+            if(email.split("").filter(char=>char === "@" || char === ".").pop() === "."){
+              isValid = true
+            }
+          }
+        }
+      }
+    }
+    if(!isValid){
+      errors["email"] = error
+    }
+  }
+
+  const validatePhone = (phone) =>{
+    let isValid = false
+    const error = "Invalid Indian phone number"
+    if(phone.length === 10){
+      if(/^[6-9]\d{9}$/.test(phone)){
+        isValid = true
+      }
+    }
+    if(!isValid){
+      errors['phone'] = error
+    }
+  }
+
+  const validateAge = (age) =>{
+    let isValid = false
+    const error = 'Age must be an integer between 16 and 100'
+    if(Number(age) >= 16 && Number(age) <=100 && parseInt(age) == age){
+      isValid = true
+    }
+    if(!isValid){
+      errors["age"] = error
+    }
+  }
+
+  const validatePinCode = (pin) =>{
+    let isValid = false
+    const error = "Invalid Indian pincode"
+    if(pin.length === 6 && !pin.startsWith("0") && /^[1-9]\d{5}$/.test(pin)){
+      isValid = true
+    }
+    if(!isValid){
+      errors["pincode"] = error
+    }
+  }
+
+  const validateState = (state) =>{
+    let isValid = false;
+    const error = "State is required"
+    if(typeof state === "string" && state.trim().length > 0){
+      isValid = true
+    }
+    if(!isValid){
+      errors["state"] = error
+    }
+  }
+
+  const validateAgreeTerms = (agreeTerms) =>{
+    let isValid = false;
+    const error = "Must agree to terms"
+    const falsyValues = [0, "", null, undefined, NaN, false]
+    if(!falsyValues.includes(agreeTerms)){
+      isValid = true
+    }
+
+    if(!isValid){
+      errors["agreeTerms"] = error
+    }
+  }
+
+  
+  validateName(name)
+  validateEmail(email)
+  validatePhone(phone)
+  validateAge(age)
+  validatePinCode(pincode)
+  validateState(state)
+  validateAgreeTerms(agreeTerms)
+  
+  if(Object.keys(errors).length === 0) isValid = true
+
+  return {
+    isValid,
+    errors
+  }
 }

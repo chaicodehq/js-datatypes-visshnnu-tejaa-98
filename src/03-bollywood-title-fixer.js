@@ -31,4 +31,29 @@
  */
 export function fixBollywoodTitle(title) {
   // Your code here
+
+  let ignoreWords = ["ka", "ki", "ke", "se", "aur", "ya", "the", "of", "in", "a", "an"]
+  
+  if(typeof title !== "string" || title.trim() === "") return ""
+
+  const removeSpaces = (title) =>{
+    return title.trim().replace(/\s+/g, ' ')
+  }
+
+  const capitalizeFirstLetter = (title) =>{
+    let capitalizedWord = title.slice(0,1).toUpperCase() + title.slice(1).toLowerCase()
+    return capitalizedWord
+  }
+
+  const step1 = removeSpaces(title)
+  const words = step1.split(" ")
+
+  let capitalizedWordsArray = words.map((word, idx)=>{
+    if(ignoreWords.includes(word) && idx === 0) return capitalizeFirstLetter(word)
+    else if(ignoreWords.includes(word) && idx >=0) return word
+    return capitalizeFirstLetter(word)
+  })
+
+  let res = capitalizedWordsArray.join(" ")
+  return res
 }

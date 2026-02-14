@@ -40,4 +40,29 @@
  */
 export function calculateGST(amount, category) {
   // Your code here
+  if(typeof amount !== "number" || amount === Infinity || isNaN(amount)) return null;
+  if(typeof category !== "string" || category.trim() === "") return null
+  if(amount <=0) return null
+
+  let gstTaxes = {
+    essential: 0,
+    food: 5,
+    standard: 12,
+    electronics: 18,
+    luxury: 28
+  }
+
+  let gstRate = gstTaxes[category.toLowerCase()]
+
+  if(!Object.hasOwn(gstTaxes, category.toLowerCase())) return null
+
+  let gstAmount = parseFloat(((amount * gstRate) / 100).toFixed(2))
+  let totalAmount = parseFloat((amount + gstAmount).toFixed(2))
+
+  return {
+    baseAmount: amount,
+    gstRate,
+    gstAmount,
+    totalAmount
+  }
 }
